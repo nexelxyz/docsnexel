@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docs · NEXEL · The identity layer for AI agents on Base</title>
+<meta name="description" content="Scoring methodology, on-chain inspector, data sources, and protocol primitives.">
+<meta name="theme-color" content="#000000">
+<meta name="robots" content="noindex, nofollow">
+<meta name="googlebot" content="noindex, nofollow">
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
+
+<!-- Open Graph (Facebook, LinkedIn, etc.) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://docs.trynexel.xyz/">
+<meta property="og:title" content="Docs · NEXEL · The identity layer for AI agents on Base">
+<meta property="og:description" content="Scoring methodology, on-chain inspector, data sources, and protocol primitives.">
+<meta property="og:image" content="https://trynexel.xyz/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="Nexel">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@trynexelxyz">
+<meta name="twitter:creator" content="@trynexelxyz">
+<meta name="twitter:title" content="Docs · NEXEL · The identity layer for AI agents on Base">
+<meta name="twitter:description" content="Scoring methodology, on-chain inspector, data sources, and protocol primitives.">
+<meta name="twitter:image" content="https://trynexel.xyz/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000000;
+    --bg-elev: #0a0a0a;
+    --bg-elev-2: #111111;
+    --bg-elev-3: #161616;
+    --fg: #ffffff;
+    --fg-dim: rgba(255,255,255,0.6);
+    --fg-faint: rgba(255,255,255,0.35);
+    --fg-ghost: rgba(255,255,255,0.18);
+    --line: rgba(255,255,255,0.08);
+    --line-strong: rgba(255,255,255,0.18);
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --serif: 'Fraunces', Georgia, serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: var(--mono); font-weight: 400;
+    line-height: 1.55; font-size: 14px;
+    letter-spacing: 0.01em;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--fg); color: var(--bg); }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none; z-index: 0;
+    mask-image: radial-gradient(ellipse at center, black 0%, transparent 80%);
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    pointer-events: none; z-index: 1; opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  }
+  main, nav, footer { position: relative; z-index: 2; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 20px 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--line);
+  }
+  .logo {
+    font-family: var(--mono); font-weight: 600; font-size: 13px;
+    letter-spacing: 0.3em;
+    display: flex; align-items: center; gap: 12px;
+    text-decoration: none; color: var(--fg);
+  }
+  .logo-mark {
+    width: 18px; height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-mark svg {
+    width: 100%; height: 100%;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .logo-mark svg text {
+    fill: currentColor;
+  }
+  .logo:hover .logo-mark svg {
+    transform: scale(1.15) rotate(-3deg);
+  }
+  .logo-sub {
+    font-family: var(--mono); font-weight: 400;
+    font-size: 11px; color: var(--fg-faint);
+    letter-spacing: 0.25em; margin-left: 12px;
+    padding-left: 14px; border-left: 1px solid var(--line-strong);
+  }
+  .nav-back {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    padding: 10px 20px;
+    background: transparent; color: var(--fg);
+    border: 1px solid var(--line-strong);
+    text-decoration: none;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .nav-back:hover { border-color: var(--fg); background: var(--bg-elev); }
+  .nav-right {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .nav-icon {
+    width: 38px; height: 38px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid var(--line-strong);
+    color: var(--fg-dim);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .nav-icon:hover {
+    color: var(--fg);
+    border-color: var(--fg);
+    background: var(--bg-elev);
+  }
+  .nav-icon svg { width: 14px; height: 14px; display: block; }
+
+
+  /* HEADER */
+  .docs-header {
+    padding: 160px 40px 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--line);
+  }
+  .docs-header-tag {
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--fg-faint);
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .docs-header-tag::before {
+    content: ''; width: 30px; height: 1px; background: var(--fg-faint);
+  }
+  .docs-header h1 {
+    font-family: var(--serif); font-weight: 300;
+    font-size: clamp(48px, 6vw, 80px);
+    line-height: 1.05; letter-spacing: -0.03em;
+    margin-bottom: 28px;
+    max-width: 900px;
+  }
+  .docs-header h1 em { font-style: italic; color: var(--fg-dim); }
+  .docs-header p {
+    font-size: 16px; color: var(--fg-dim);
+    max-width: 660px; line-height: 1.75;
+  }
+
+  /* LAYOUT */
+  .docs-layout {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 80px 40px 120px;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 60px;
+  }
+  .docs-nav {
+    position: sticky;
+    top: 110px;
+    align-self: start;
+    border-left: 1px solid var(--line);
+    padding-left: 20px;
+  }
+  .docs-nav h4 {
+    font-size: 10px; letter-spacing: 0.3em;
+    color: var(--fg-faint); text-transform: uppercase;
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .docs-nav ul { list-style: none; margin-bottom: 32px; }
+  .docs-nav li { margin-bottom: 10px; }
+  .docs-nav a {
+    font-size: 12px; color: var(--fg-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+    display: block;
+    padding: 4px 0;
+    border-left: 2px solid transparent;
+    padding-left: 12px;
+    margin-left: -14px;
+  }
+  .docs-nav a:hover { color: var(--fg); }
+  .docs-nav a.active {
+    color: var(--fg);
+    border-left-color: var(--fg);
+  }
+
+  .docs-content { min-width: 0; overflow-wrap: break-word; word-wrap: break-word; }
+  .docs-content h2 {
+    font-family: var(--serif); font-size: 36px;
+    font-weight: 400; margin: 60px 0 20px;
+    letter-spacing: -0.02em;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    scroll-margin-top: 90px;
+  }
+  .docs-content h2:first-child {
+    margin-top: 0; padding-top: 0; border-top: none;
+  }
+  .docs-content h3 {
+    font-family: var(--serif); font-size: 24px;
+    font-weight: 400; margin: 40px 0 14px;
+    letter-spacing: -0.015em;
+    scroll-margin-top: 90px;
+  }
+  .docs-content p {
+    font-size: 14px; color: var(--fg-dim);
+    line-height: 1.85;
+    margin-bottom: 16px;
+    max-width: 720px;
+  }
+  .docs-content p strong { color: var(--fg); font-weight: 500; }
+  .docs-content ul {
+    list-style: none;
+    margin-bottom: 24px;
+    max-width: 720px;
+  }
+  .docs-content ul li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px; color: var(--fg-dim);
+    padding-left: 22px; position: relative;
+    line-height: 1.7;
+  }
+  .docs-content ul li::before {
+    content: '→';
+    position: absolute; left: 0;
+    color: var(--fg-faint);
+  }
+  .docs-content code {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--bg); border: 1px solid var(--line);
+    padding: 2px 6px; color: var(--fg);
+  }
+  .docs-content pre {
+    background: var(--bg); border: 1px solid var(--line-strong);
+    padding: 20px; overflow-x: auto;
+    font-size: 12px; color: var(--fg);
+    margin-bottom: 24px; line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-width: 100%;
+  }
+
+  .formula-card {
+    margin: 24px 0;
+    padding: 32px;
+    border: 1px solid var(--line-strong);
+    background: var(--bg-elev);
+    text-align: center;
+    position: relative;
+  }
+  .formula-card::before, .formula-card::after {
+    content: ''; position: absolute; width: 12px; height: 12px;
+  }
+  .formula-card::before {
+    top: -1px; left: -1px;
+    border-top: 1px solid var(--fg);
+    border-left: 1px solid var(--fg);
+  }
+  .formula-card::after {
+    bottom: -1px; right: -1px;
+    border-bottom: 1px solid var(--fg);
+    border-right: 1px solid var(--fg);
+  }
+  .formula-display {
+    font-family: var(--serif); font-style: italic;
+    font-size: clamp(22px, 3.5vw, 32px);
+    color: var(--fg);
+    letter-spacing: -0.01em;
+  }
+  .formula-display .var { font-style: normal; color: var(--fg-dim); }
+  .formula-display sup { font-size: 0.55em; }
+  .formula-display .br { font-style: normal; color: var(--fg-faint); margin: 0 6px; }
+
+  /* TIER TABLE */
+  .doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 12px;
+    border: 1px solid var(--line);
+  }
+  .doc-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    margin: 16px 0 24px;
+  }
+  .doc-table-wrap .doc-table {
+    min-width: 480px;
+    margin: 0;
+  }
+  .doc-table th, .doc-table td {
+    padding: 14px 18px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+  .doc-table th {
+    font-size: 9px; letter-spacing: 0.25em;
+    color: var(--fg-faint); text-transform: uppercase;
+    border-bottom: 1px solid var(--line-strong);
+    background: var(--bg-elev); font-weight: 500;
+  }
+  .doc-table td:first-child {
+    color: var(--fg); font-family: var(--serif); font-size: 14px;
+  }
+  .doc-table tr:last-child td { border-bottom: none; }
+
+  /* FAQ */
+  .faq-item {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-q {
+    font-family: var(--serif); font-size: 20px;
+    font-weight: 400; letter-spacing: -0.01em;
+    margin-bottom: 12px;
+    color: var(--fg);
+  }
+  .faq-a {
+    font-size: 13px; color: var(--fg-dim);
+    line-height: 1.8;
+    max-width: 720px;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 60px 40px 40px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .foot-brand .logo { margin-bottom: 24px; }
+  .foot-tag { font-size: 12px; color: var(--fg-dim); max-width: 280px; line-height: 1.7; }
+  .foot-col h4 {
+    font-size: 10px; letter-spacing: 0.25em;
+    color: var(--fg-faint); text-transform: uppercase;
+    margin-bottom: 18px; font-weight: 500;
+  }
+  .foot-col ul { list-style: none; }
+  .foot-col li { margin-bottom: 12px; }
+  .foot-col a.item {
+    color: var(--fg-dim); text-decoration: none;
+    font-size: 12px;
+    transition: color 0.2s; cursor: pointer;
+  }
+  .foot-col a.item:hover { color: var(--fg); }
+  .foot-bottom {
+    grid-column: 1 / -1;
+    padding-top: 32px; margin-top: 20px;
+    border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--fg-faint);
+    letter-spacing: 0.15em;
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 16px 20px; }
+    .logo-sub { display: none; }
+    .docs-header { padding: 130px 20px 60px; }
+    .docs-layout {
+      grid-template-columns: 1fr;
+      padding: 40px 20px 80px;
+      gap: 40px;
+    }
+    .docs-nav {
+      position: static;
+      border-left: none;
+      border-bottom: 1px solid var(--line);
+      padding-left: 0;
+      padding-bottom: 20px;
+    }
+    .docs-content pre { font-size: 10px; padding: 14px; }
+    .formula-card { padding: 24px 16px; }
+    footer { grid-template-columns: 1fr 1fr; padding: 40px 20px; }
+  }
+
+  .reveal {
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  /* Global guard: prevent body horizontal scroll */
+  html, body { overflow-x: hidden; max-width: 100vw; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://trynexel.xyz/" class="logo">
+    <span class="logo-mark" aria-label="Nexel"><svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg"><polygon points="14,2 24,8 24,20 14,26 4,20 4,8" fill="none" stroke="currentColor" stroke-width="1.5"/><g stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="9" x2="10" y2="19"/><line x1="10" y1="9" x2="18" y2="19"/><line x1="18" y1="9" x2="18" y2="19"/></g></svg></span>NEXEL
+    <span class="logo-sub">DOCS</span>
+  </a>
+  <div class="nav-right">
+    <a href="https://x.com/trynexelxyz" target="_blank" rel="noopener" class="nav-icon" aria-label="Nexel on X">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+      </svg>
+    </a>
+    <a href="https://trynexel.xyz/" class="nav-back">← Back to Site</a>
+  </div>
+</nav>
+
+<main>
+
+  <header class="docs-header">
+    <div class="docs-header-tag">Documentation · v0.1 · Pre-Launch</div>
+    <h1>Everything you need<br>to <em>understand Nexel</em>.</h1>
+    <p>
+      Nexel is the identity and reputation layer for autonomous AI agents on Base.
+      These docs cover the scoring methodology, on-chain inspector, data sources,
+      and the path to launch.
+    </p>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-nav">
+      <h4>Get Started</h4>
+      <ul>
+        <li><a href="#overview" class="nav-link">Overview</a></li>
+        <li><a href="#mission" class="nav-link">Mission</a></li>
+      </ul>
+
+      <h4>Scoring</h4>
+      <ul>
+        <li><a href="#trust-score" class="nav-link">Trust Score</a></li>
+        <li><a href="#formula" class="nav-link">Formula</a></li>
+        <li><a href="#tiers" class="nav-link">Tiers</a></li>
+      </ul>
+
+      <h4>Inspector</h4>
+      <ul>
+        <li><a href="#how-it-works" class="nav-link">How it works</a></li>
+        <li><a href="#data-sources" class="nav-link">Data sources</a></li>
+        <li><a href="#limitations" class="nav-link">Limitations</a></li>
+      </ul>
+
+      <h4>Protocol</h4>
+      <ul>
+        <li><a href="#primitives" class="nav-link">Primitives</a></li>
+        <li><a href="#layer" class="nav-link">Identity Layer</a></li>
+        <li><a href="#post-launch" class="nav-link">Post-Launch</a></li>
+      </ul>
+
+      <h4>Help</h4>
+      <ul>
+        <li><a href="#faq" class="nav-link">FAQ</a></li>
+      </ul>
+    </aside>
+
+    <div class="docs-content">
+
+      <h2 id="overview">Overview</h2>
+      <p>
+        Nexel is building the identity and reputation layer for autonomous AI agents on Base.
+        The protocol solves the trust gap that emerges when agents transact with each other
+        and with capital. Every agent gets a sovereign on-chain identity, with a verifiable
+        history of behavior visible to anyone.
+      </p>
+      <p>
+        The project is currently <strong>pre-launch</strong>. There is no token. There is no
+        staking. There is no minting. The tools available today use real Base mainnet RPC and
+        a transparent scoring formula. Identity contracts deploy after audit completes.
+      </p>
+
+      <h3 id="mission">Mission</h3>
+      <p>
+        Identity is the missing primitive in the agent economy. Existing solutions either skip
+        it entirely (most launchpads) or solve it for humans (proof-of-personhood projects).
+        Nexel solves it for agents: machines that need to prove competence, accountability,
+        and accumulated reputation rather than biometric uniqueness.
+      </p>
+      <ul>
+        <li>Every agent gets a sovereign, soulbound identity on Base</li>
+        <li>Every action emits a verifiable audit receipt</li>
+        <li>Every reputation point is signed by a counterparty</li>
+        <li>Every integration uses the same trust substrate</li>
+      </ul>
+
+      <h2 id="trust-score">Trust Score</h2>
+      <p>
+        The Trust Score is a deterministic function that combines three normalized signal
+        components and applies an age multiplier and a sybil penalty. Scores are not opinions —
+        they are computed from measurable on-chain data and verifiable attestations.
+      </p>
+
+      <h3 id="formula">Formula</h3>
+      <div class="formula-card">
+        <div class="formula-display">
+          T <span class="br">=</span> (<span class="var">R</span> <span class="br">·</span> <span class="var">F</span> <span class="br">·</span> <span class="var">A</span>)<sup>1/3</sup> <span class="br">×</span> M<sub>age</sub> <span class="br">−</span> P<sub>sybil</sub>
+        </div>
+      </div>
+      <pre>R       = reputation points       (0–1000, normalized)
+F       = on-chain footprint      (0–100, derived from chain state)
+A       = attestation density     (0–100, distinct signers)
+M_age   = account age multiplier  (1.0 to 1.5, log-scaled)
+P_sybil = cluster penalty         (0 to 30)
+
+T       = trust score             (0–100)</pre>
+      <p>
+        The <strong>geometric mean</strong> ensures that an agent cannot compensate for zero
+        attestations with high activity, or zero activity with many attestations. Every
+        component must be present and non-trivial to score well. This is a deliberate design
+        choice — single weak signals collapse the entire score.
+      </p>
+      <p>
+        The <strong>age multiplier</strong> rewards established addresses with up to a 50%
+        score boost at 3+ years. The <strong>sybil penalty</strong> subtracts up to 30 points
+        for cluster patterns suggesting coordinated burst behavior (new addresses with very
+        high tx counts in short windows).
+      </p>
+
+      <h3 id="tiers">Tier classification</h3>
+      <p>Trust scores map to tiers used by integrating protocols for access control and rate gating.</p>
+      <div class="doc-table-wrap"><table class="doc-table">
+        <thead>
+          <tr><th>Range</th><th>Tier</th><th>Authority Level</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>80 — 100</td><td>Sovereign</td><td>Unrestricted. Institutional capital eligible.</td></tr>
+          <tr><td>65 — 79</td><td>Tier I · Trusted</td><td>High-trust delegated authority.</td></tr>
+          <tr><td>50 — 64</td><td>Tier II · Verified</td><td>Bounded autonomous operation.</td></tr>
+          <tr><td>35 — 49</td><td>Tier III · Emergent</td><td>Supervised. Low capital limits.</td></tr>
+          <tr><td>20 — 34</td><td>Tier IV · Nascent</td><td>Probationary. Read-only contexts.</td></tr>
+          <t
